@@ -25,8 +25,8 @@ if __name__ == "__main__":
 
 	rospy.Subscriber("/base_scan", LaserScan, laser_callback)
 
-	target_x = 0.0
-	target_y = 8.0
+	target_x = -2
+	target_y = 5
 
 	min_distance = 0.1
 
@@ -48,21 +48,36 @@ if __name__ == "__main__":
 			(roll, pitch, yaw) = euler_from_quaternion(orientation_list)
 			angle_to_target = math.atan2(target_y-y, target_x-x)
 			angle_diff = angle_to_target - yaw
-			rospy.loginfo("Where i am: X: %s, Y: %s, Angle_target: %s, Angle_diff %s", x, y,angle_to_target,angle_diff)
+			#rospy.loginfo("Where i am: X: %s, Y: %s, Angle_target: %s, Angle_diff %s", x, y,angle_to_target,angle_diff)
 			
 			if (len(laser.ranges) > 0):
-				if (min(laser.ranges[45*4:225*4]) > 0.25):
-					velocity.linear.x = 0.5 * distance
-					velocity.angular.z = 0.5 * angle_diff
+				right_laser = max(laser.ranges[:300])
+				left_laser = max(laser.ranges[780:1081])
+
+				right_laser_movement = max(laser.ranges[300:540])
+				left_laser_movemnt = max(laser.ranges[540:780])
+
+				print(f'Laser left:{left_laser} ------ right{right_laser}')
+				#print(f'Movemnt {right_laser_movement} ------ {left_laser_movemnt}')
+				cabeca = max(right_laser, left_laser)
+				
+				if (min(laser.ranges[300:780]) > 0.25):
+					if right_laser_movement > left_laser_movemnt:
+						velocity.linear.x = 0.5 * distance
+						velocity.angular.z = 0.5 * -angle_diff
+					else:
+						velocity.linear.x = 0.5 * distance
+						velocity.angular.z = 0.5 * angle_diff
 					
 				else:
-					velocity.linear.x = 0.0
-					velocity.angular.z = 0.5 * (angle_diff/angle_diff)
+					velocity.linear.x = 0
+					if right_laser+1 > left_laser:
+						velocity.angular.z = -90
+					if left_laser+1 > right_laser:
+						velocity.angular.z = 90
 				
 				pub.publish(velocity)
 
-
-			
 		else:
 			velocity.linear.x = 0.0
 			velocity.angular.z = 0.0
