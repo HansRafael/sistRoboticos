@@ -26,12 +26,17 @@ if __name__ == "__main__":
 	rospy.Subscriber("/base_scan", LaserScan, laser_callback)
 
   # Dentro(2.8,7) , (-2,7), (3,-1.5), 5,5(4,0.5)  (3.8, 7) (0, 7.5)    n foi ( -4,0)
-	target_x = 3.8
-	target_y = 7
+	# Dentro obstaculos (CIMA) (3.5, 7)
+	# Dentro Obstaculos (BAIXO) (4, 0)
+	# Poucas paredes (0, 7.5)
+	# Linha reta sem nada (4, 4)
+	# Volta (-2.0, 6)   -> apenas com o ABS (-4.5, 0) - (-4, 2)
+	target_x = 3.5
+	target_y = 7.0
 
 	min_distance = 0.1
 
-	pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)    
+	pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)    	
 	r = rospy.Rate(5) # 10hz
 	velocity = Twist()
 	while not rospy.is_shutdown():
@@ -65,7 +70,10 @@ if __name__ == "__main__":
 				
 				if (min(laser.ranges[300:780]) > 0.20):
 						velocity.linear.x = distance * 0.4
-						velocity.angular.z = (angle_diff)
+						if(target_x > 0):
+							velocity.angular.z = (angle_diff)
+						else:
+							velocity.angular.z = abs(angle_diff)
 					
 				else:
 					velocity.linear.x = 0
