@@ -25,8 +25,9 @@ if __name__ == "__main__":
 
 	rospy.Subscriber("/base_scan", LaserScan, laser_callback)
 
-	target_x = -2
-	target_y = 5
+  # Dentro(2.8,7) , (-2,7), (3,-1.5), 5,5(4,0.5)  (3.8, 7) (0, 7.5)    n foi ( -4,0)
+	target_x = 3.8
+	target_y = 7
 
 	min_distance = 0.1
 
@@ -37,7 +38,7 @@ if __name__ == "__main__":
 		#print(laser.ranges)
 		x = odometry.pose.pose.position.x
 		y = odometry.pose.pose.position.y
-		
+
 		# Verifica se chegou ao alvo
 		distance = math.sqrt((x-target_x)**2 + (y-target_y)**2)
 		if (distance > min_distance):
@@ -51,30 +52,33 @@ if __name__ == "__main__":
 			#rospy.loginfo("Where i am: X: %s, Y: %s, Angle_target: %s, Angle_diff %s", x, y,angle_to_target,angle_diff)
 			
 			if (len(laser.ranges) > 0):
-				right_laser = max(laser.ranges[:300])
+				right_laser = max(laser.ranges[0:300])
 				left_laser = max(laser.ranges[780:1081])
 
 				right_laser_movement = max(laser.ranges[300:540])
 				left_laser_movemnt = max(laser.ranges[540:780])
 
-				print(f'Laser left:{left_laser} ------ right{right_laser}')
+				#print(f'Laser left:{left_laser} ------ right{right_laser}')
+				print(f'angle_to_target :{angle_to_target} ------ angle_diff{angle_diff}')
 				#print(f'Movemnt {right_laser_movement} ------ {left_laser_movemnt}')
 				cabeca = max(right_laser, left_laser)
 				
-				if (min(laser.ranges[300:780]) > 0.25):
-					if right_laser_movement > left_laser_movemnt:
-						velocity.linear.x = 0.5 * distance
-						velocity.angular.z = 0.5 * -angle_diff
-					else:
-						velocity.linear.x = 0.5 * distance
-						velocity.angular.z = 0.5 * angle_diff
+				if (min(laser.ranges[300:780]) > 0.20):
+						velocity.linear.x = distance * 0.4
+						velocity.angular.z = (angle_diff)
 					
 				else:
 					velocity.linear.x = 0
-					if right_laser+1 > left_laser:
-						velocity.angular.z = -90
-					if left_laser+1 > right_laser:
-						velocity.angular.z = 90
+					if right_laser > left_laser:
+						while((min(laser.ranges[300:780]) <= 0.20)):
+							velocity.angular.z = -15
+							pub.publish(velocity)
+					else:
+						while((min(laser.ranges[300:780]) <= 0.20)):
+							velocity.angular.z = 15
+							pub.publish(velocity)
+					velocity.angular.z = (angle_diff)
+
 				
 				pub.publish(velocity)
 
