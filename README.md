@@ -16,6 +16,8 @@ source devel/setup.zsh
 In the end, just run:
 ```
 roslaunch stage_controller launcher.launch
+or
+roslaunch path_controller launcher.launch
 ```
 
 

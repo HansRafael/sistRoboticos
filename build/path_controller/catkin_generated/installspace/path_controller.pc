@@ -1,0 +1,8 @@
+prefix=/home/hans/catkin_ws/install
+
+Name: path_controller
+Description: Description of path_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
