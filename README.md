@@ -25,6 +25,7 @@ roslaunch path_controller launcher.launch
 ```
 catkin_make
 source devel/setup.zsh
+export TURTLEBOT3_MODEL=burger 
 ```
 f -> stop camera
 
