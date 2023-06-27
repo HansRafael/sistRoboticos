@@ -146,3 +146,46 @@ class Env():
         self.report_goal_distance(distance, collision, goal)
 
         return np.asarray(state)
+
+    def move(self):
+        data = None
+        while data is None:
+            try:
+                data = rospy.wait_for_message('scan', LaserScan, timeout=5)
+            except:
+                pass
+        scan_range, current_distance, collision, goal = self.getState(data)
+
+        self.sub_odom
+        return self.heading, current_distance
+
+    def get_scan(self):
+        scan = rospy.wait_for_message('scan', LaserScan)
+        scan_filter = []
+       
+        samples = len(scan.ranges)  # The number of samples is defined in 
+                                    # turtlebot3_<model>.gazebo.xacro file,
+                                    # the default is 360.
+        samples_view = 80            # 1 <= samples_view <= samples
+        
+        if samples_view > samples:
+            samples_view = samples
+
+        if samples_view is 1:
+            scan_filter.append(scan.ranges[0])
+
+        else:
+            left_lidar_samples_ranges = -(samples_view//2 + samples_view % 2)
+            right_lidar_samples_ranges = samples_view//2
+            
+            left_lidar_samples = scan.ranges[left_lidar_samples_ranges:]
+            right_lidar_samples = scan.ranges[:right_lidar_samples_ranges]
+            scan_filter.extend(left_lidar_samples + right_lidar_samples)
+
+        for i in range(samples_view):
+            if scan_filter[i] == float('Inf'):
+                scan_filter[i] = 3.5
+            elif math.isnan(scan_filter[i]):
+                scan_filter[i] = 0
+        
+        return scan_filter
