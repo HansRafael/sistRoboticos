@@ -166,7 +166,7 @@ class Env():
         samples = len(scan.ranges)  # The number of samples is defined in 
                                     # turtlebot3_<model>.gazebo.xacro file,
                                     # the default is 360.
-        samples_view = 80            # 1 <= samples_view <= samples
+        samples_view = 90            # 1 <= samples_view <= samples
         
         if samples_view > samples:
             samples_view = samples

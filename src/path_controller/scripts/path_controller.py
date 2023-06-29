@@ -46,45 +46,29 @@ if __name__ == "__main__":
         heading, current_distance = env.move()
         count = 0
         if len(state_scan) > 100000:
-            print("nao entrei ne")
-            if min(state_scan[0:30] > 0.25):
-                action[0] = LINEAR_VEL
-                action[1] = heading * 0.5
-
-            else:
-                action[0] = 0
-                if right_laser > left_laser:
-                    while min(state_scan[0:30] <= 0.25):  
-                        action[1] = 1.5
-                        state_scan = env.step(action)
-                else:
-                    while min(state_scan[0:30] <= 0.25):  
-                        action[1] = -1.5
-                        state_scan = env.step(action)
-            action[1] = heading
-
-        else:
+            pass
+        elif len(state_scan) > 0:
             lidar_distances = env.get_scan()
-            print(len(lidar_distances))
-            right_laser = max(lidar_distances[0:1])
-            left_laser = max(lidar_distances[50:60])
+            right_laser = min(lidar_distances[0:45])
+            left_laser = min(lidar_distances[45:90])
             min_distance = min(lidar_distances)
-            print(f'Movemnt {right_laser} ------ {left_laser}')
-
+            #max_distance = max(lidar_distances)
+            #print(f'Movemnt {right_laser} ------ {left_laser}')
             if min_distance < SAFE_STOP_DISTANCE:
                 if turtlebot_moving:
-                    
                     action[0] = 0.0
-                    action[1] = -.5
+                    if right_laser > left_laser:
+                        action[1] = -.5
+                    else:
+                        action[1] = .5
                     state_scan = env.step(action)
                     turtlebot_moving = False
                     rospy.loginfo('Stop!')
             else:
                 action[0] = LINEAR_VEL
-                action[1] = heading * 0.5
+                action[1] = heading * 0.60
                 state_scan = env.step(action)
                 turtlebot_moving = True
-                rospy.loginfo('Distance of the obstacle : %f', min_distance)
             
         state_scan = env.step(action)
                 
