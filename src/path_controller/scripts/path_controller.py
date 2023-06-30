@@ -41,19 +41,15 @@ if __name__ == "__main__":
     velocity = Twist()
     while not rospy.is_shutdown():
         # FACA SEU CODIGO AQUI
-        right_laser = max(state_scan[300:360])
-        left_laser = max(state_scan[60:120])
-        heading, current_distance = env.move()
-        count = 0
+        heading, _ = env.move()
         if len(state_scan) > 100000:
             pass
-        elif len(state_scan) > 0:
+        if len(state_scan) > 0:
             lidar_distances = env.get_scan()
             right_laser = min(lidar_distances[0:45])
             left_laser = min(lidar_distances[45:90])
             min_distance = min(lidar_distances)
-            #max_distance = max(lidar_distances)
-            #print(f'Movemnt {right_laser} ------ {left_laser}')
+
             if min_distance < SAFE_STOP_DISTANCE:
                 if turtlebot_moving:
                     action[0] = 0.0
